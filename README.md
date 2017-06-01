@@ -32,5 +32,5 @@ vs.read()
 
 To stop the steam we call:
 ```bash
-vs.read()
+vs.stop()
 ```
