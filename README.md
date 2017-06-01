@@ -1,4 +1,4 @@
-# PiCamera_ROS_MultiThred
+# PiCamera_ROS_MultiThread
 This Class has been written around the PiCamera library it provides easy access to camera parameters and enables the camera to run as a seperate thread. This provides uninterrupted video streaming at over 200fps **resolution dependant**. 
 
 This Class also provides the option to enable a ROS publisher that will provide the stream to rostopic /image
