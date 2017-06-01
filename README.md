@@ -22,7 +22,7 @@ Start the stream:
 vs.start()
 ```
 
-**The camera will take 10 seconds to warm up, this allows the inaccesable analog and digital gains to rise to nice level before we change parameters that lock these values, the camera will let you know when it's read to use.**
+**The camera will take 10 seconds to warm up, this allows the inaccessible analog and digital gains to rise to nice level before we change parameters that lock these values, the camera will let you know when it's ready to use.**
 
 
 To get the most current image we call :
