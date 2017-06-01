@@ -1,0 +1,3 @@
+<launch>
+  <node name="picam_pub" pkg="picam_node" type="picam_pub.py" output="screen"/>
+</launch>
