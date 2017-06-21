@@ -3,7 +3,7 @@
 
 # Software License Agreement (BSD)
 #
-#  file      @picam_pub.py
+#  file      @picam_sub.py
 #  authors   Ben Fogarty <ben.fogarty@live.com>
 #            Better Robotics <ben.fogarty@live.com>
 #  copyright Copyright (c) 2017, Better Robotics, Inc., All rights reserved.
