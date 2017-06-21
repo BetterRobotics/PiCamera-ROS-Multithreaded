@@ -30,14 +30,16 @@ except ImportError:
 
 
 class PiVideoStream:
-    def __init__(self, resolution=(320, 240), framerate=20, ROS=False):
+    def __init__(self, resolution=(320, 240), framerate=20, ROS=False, cal=False):
         # initialize the camera and stream
         self.camera = PiCamera()
         self.camera.resolution = resolution
         self.camera.framerate = framerate
         self.camera.awb_mode = 'auto'
         self.camera.exposure_mode = 'auto'
-        self.camera.awb_gains = (1.0, 1.0)
+
+        # As a safey in case the awb_mode is set to off before these values are set will break the camera driver
+        self.camera.awb_gains = (1.0, 1.0) 
         
         #self.camera.rotation = 90
         self.camera.vflip = False
@@ -51,7 +53,7 @@ class PiVideoStream:
         self.stopped = False
 
         # Set the vaiables used to control the White balance
-        self.cali = False
+        self.cali = cal
         self.rGain = 1.0
         self.bGain = 1.0
         self.str = 'EMPTY'
@@ -61,17 +63,12 @@ class PiVideoStream:
         if self.ROS == True and ROS_FLAG:
             rospy.init_node('PiCamera', anonymous=True)
             PiVideoStream.start_ros_node(self)
+            if(self.cali):
+                rospy.loginfo("Custom AWB mode being used!")
+                self.camera.awb_mode = 'off' # make sure the camera.awb_gains has been set
 
 
-    def awb(self, x, awb_mode='auto' ,exp_mode='auto'):
-       if(x == True): 
-           self.camera.exposure_mode = exp_mode
-           self.camera.awb_mode = awb_mode
-       else:
-           self.camera.awb_mode = awb_mode
-
-
-    def calibrate_cam(self):
+    def custom_awb(self):
         # get r,g,b values from the image
         b,g,r = cv2.split(self.frame)
         b = np.mean(b)
@@ -95,11 +92,15 @@ class PiVideoStream:
                 if (self.bGain < 7.98):
                     self.bGain += 0.01
         if g < 95:
-            self.camera.brightness += 1
+            if(self.camera.brightness <= 99):
+                self.camera.brightness += 1
         elif g > 105:
-            self.camera.brightness -= 1
+            if(self.camera.brightness >= 2):
+                self.camera.brightness -= 1
 
+        camera.awb_gains = (self.rGain, self.bGain)
         self.str = 'rGain: %f\tbGain: %f\tBrightness %i R: %i, G: %i, B: %i\n' % (self.rGain, self.bGain, self.camera.brightness, r, g, b)
+        rospy.loginfo(self.str)
 
 
     def debug(self):
@@ -126,16 +127,18 @@ class PiVideoStream:
     def update(self):
         # keep looping infinitely until the thread is stopped
         for f in self.stream:
+
             # grab the frame from the stream and clear the stream in
             # preparation for the next frame
             self.frame = f.array
-            #self.rawCapture.truncate(0)
 
+            # if we init with options act on them
             if(self.ROS == True):
                 PiVideoStream.pub_image(self)
 
             if(self.cali == True):
-                PiVideoStream.calibrate_cam(self)
+                PiVideoStream.custom_awb(self)
+
             # if the thread indicator variable is set, stop the thread
             # and resource camera resources
             if self.stopped:
@@ -211,10 +214,9 @@ class PiVideoStream:
             msg = Image()
             msg.header.frame_id = 'base_link'
             msg.header.stamp = rospy.Time.now()
-            # msg.data = self.frame.tostring()
+
+            # Encode image 
             msg.data = np.array(cv2.imencode('.jpg', self.frame)[1]).tostring()
-            # str0 = "Image Sent"
-            # rospy.logwarn(str0)
 
             # Publish new image
             self.videoRaw.publish(msg)
@@ -222,19 +224,8 @@ class PiVideoStream:
 
 if __name__ == '__main__':
 
-    vs = PiVideoStream(framerate=20, ROS=True).start() # start picamera using defaults with ROS node
+    vs = PiVideoStream(framerate=20, ROS=False, cal=False).start() # start picamera using defaults with ROS node
 
     while not rospy.is_shutdown():
         time.sleep(1) ## sleep for 1 second
     vs.stop()
-
-
-
-# + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + #
-#                              CODE CEMETARY                                      #
-# + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + # 
-'''
-
-
-
-''' 
