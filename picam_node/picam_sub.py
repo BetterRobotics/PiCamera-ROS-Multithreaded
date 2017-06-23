@@ -36,7 +36,7 @@ def callback(data):
     # create int values from sting
     np_arr = np.fromstring(data.data, np.uint8)
 
-    # convert data from .jpg encoded image to cv2 format (np.uint8)
+    # convert data from .jpg encoded image to cv2 format
     image = cv2.imdecode(np_arr, 1)
     cv2.imshow('image', image)
 
