@@ -12,9 +12,9 @@ Please see the PiCamera Documention for possible settings.
 
 # To use this class from another script
 
-Enable the class
+Enable the class - *NOTE: The "frame_size" will determine the image size of read() function - See PiCamera doc for more info
 ```bash
-vs = picam.PiVideoStream(resolution=(320, 240), framerate=20, ROS=False)
+vs = picam.PiVideoStream(frame_size=(320,240), resolution=(1280, 720), framerate=20, ROS=False)
 ```
 
 Start the stream:
