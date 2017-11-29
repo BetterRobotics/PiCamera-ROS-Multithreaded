@@ -166,7 +166,7 @@ class PiVideoStream:
                 PiVideoStream.custom_awb(self)
 
             # if the thread indicator variable is set, stop the thread
-            # and resource camera resources
+            # and release camera resources
             if self.stopped:
                 self.stream.close()
                 self.rawCapture.close()
