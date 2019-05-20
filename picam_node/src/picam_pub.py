@@ -56,7 +56,7 @@ except ImportError:
 
 
 class PiVideoStream:
-    def __init__(self, resolution=(320, 240), framerate=20, ROS=False, cal=False):
+    def __init__(self, frame_size=(320,240), resolution=(1280, 720), framerate=20, ROS=False, cal=False):
         # initialize the camera and stream
         self.camera = PiCamera()
         self.camera.resolution = resolution
@@ -70,8 +70,8 @@ class PiVideoStream:
         #self.camera.rotation = 90
         self.camera.vflip = False
         self.camera.hflip = False
-        self.rawCapture = PiRGBArray(self.camera, size=resolution)
-        self.stream = self.camera.capture_continuous(self.rawCapture, format="bgr", use_video_port=True)
+        self.rawCapture = PiRGBArray(self.camera, size=frame_size)
+        self.stream = self.camera.capture_continuous(self.rawCapture, format="bgr", resize=(frame_size), use_video_port=True)
 
         # initialize the frame and the variable used to indicate
         # if the thread should be stopped
@@ -166,7 +166,7 @@ class PiVideoStream:
                 PiVideoStream.custom_awb(self)
 
             # if the thread indicator variable is set, stop the thread
-            # and resource camera resources
+            # and release camera resources
             if self.stopped:
                 self.stream.close()
                 self.rawCapture.close()
